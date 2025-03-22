@@ -38,7 +38,7 @@ jobs:
       - name: Overlay WiX-CI Files
         shell: cmd
         run: |
-          xcopy /iery wix-ci/src src
+          xcopy /iery wix-ci\\src src
        
       - name: Build wix6
         shell: cmd
