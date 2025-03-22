@@ -35,6 +35,11 @@ jobs:
           reg add "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_DWORD /v DumpCount /d 10 /f
           reg add "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_DWORD /v DumpType /d 1
 
+      - name: Overlay WiX-CI Files
+        shell: cmd
+        run: |
+          xcopy /iery wix-ci/src src
+       
       - name: Build wix6
         shell: cmd
         run: ./src/build_official.cmd
