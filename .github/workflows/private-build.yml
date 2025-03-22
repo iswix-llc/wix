@@ -1,4 +1,4 @@
-name: Build WiX Toolset v6
+name: Private Build WiX Toolset v6
 
 on:
   workflow_dispatch:
