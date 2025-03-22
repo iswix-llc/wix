@@ -1,0 +1,48 @@
+name: Build WiX Toolset v6
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-2022
+    env:
+      RepoOrg: wixtoolset
+      SignBuild: false
+      WixOfficialBuild: false
+    steps:
+      - name: Checkout wix code
+        uses: actions/checkout@v4
+        with:
+	  fetch-depth: 0
+      
+      - name: Checkout iswix code
+        uses: actions/checkout@v4
+        with:
+          path: wix-ci
+          fetch-depth: 0
+      
+      - name: Configure automated logging and crash dumps
+        shell: cmd
+        run: |
+          reg add HKLM\Software\Policies\Microsoft\Windows\Installer /t REG_SZ /v Logging /d voicewarmupx /f
+          reg add HKLM\Software\WOW6432Node\Policies\Microsoft\Windows\Installer /t REG_SZ /v Logging /d voicewarmupx /f
+          reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_EXPAND_SZ /v DumpFolder /d "%CD%\build\logs\crashdumps" /f
+          reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_DWORD /v DumpCount /d 10 /f
+          reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_DWORD /v DumpType /d 1 /f
+          reg add "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_EXPAND_SZ /v DumpFolder /d "%CD%\build\logs\crashdumps" /f
+          reg add "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_DWORD /v DumpCount /d 10 /f
+          reg add "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_DWORD /v DumpType /d 1
+
+      - name: Build wix6
+        shell: cmd
+        run: ./src/build_official.cmd
+        env:
+          RuntimeTestsEnabled: false
+
+      - name: Save build
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: build/artifacts/
