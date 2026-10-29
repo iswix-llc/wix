@@ -5,12 +5,9 @@ The `WixToolset.Dtf.Compression.Zip` package contains the managed libraries for 
 [Web Site][web] | [Documentation][docs] | [Issue Tracker][issues] | [Discussions][discussions]
 
 
-## Open Source Maintenance Fee
+## About this build
 
-To ensure the long-term sustainability of this project, users of this package who generate revenue must pay an [Open Source Maintenance Fee][osmf]. While the source code is freely available under the terms of the [LICENSE][license], this package and other aspects of the project require [adherence to the Open Source Maintenance Fee EULA][eula].
-
-To pay the Maintenance Fee, [become a Sponsor](https://github.com/sponsors/wixtoolset).
-
+This package is part of IsWiX, a build of the [WiX Toolset](https://wixtoolset.org/) compiled from source at [chrpai/wix](https://github.com/chrpai/wix) and distributed under the [Microsoft Reciprocal License (MS-RL)](https://github.com/chrpai/wix/blob/main/LICENSE.TXT). It is not an official WiX Toolset release and is not affiliated with or endorsed by the WiX Toolset project. Package IDs use the `IsWiX.` prefix; assembly names and namespaces are unchanged. Please report problems with these packages at [chrpai/wix](https://github.com/chrpai/wix/issues).
 
 ## Additional resources
 

@@ -32,20 +32,30 @@
     <NuGetAuditLevel>low</NuGetAuditLevel>
   </PropertyGroup>
 
+  <!-- IsWiX branding: self-compiled builds published under MS-RL. Change these in one place. -->
   <PropertyGroup>
-    <Authors Condition=" '$(WixOfficialBuild)'!='true' ">WiX Dev Build</Authors>
+    <IsWiXAuthors>Christopher Painter</IsWiXAuthors>
+    <IsWiXCompany>IsWiX</IsWiXCompany>
+    <IsWiXProduct>IsWiX</IsWiXProduct>
+    <IsWiXProjectUrl>https://github.com/chrpai/wix</IsWiXProjectUrl>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors Condition=" '$(WixOfficialBuild)'!='true' ">$(IsWiXAuthors)</Authors>
     <Authors Condition=" '$(WixOfficialBuild)'=='true' ">WiX Toolset Team</Authors>
-    <Company Condition=" '$(WixOfficialBuild)'!='true' ">WiX Dev Build</Company>
+    <Company Condition=" '$(WixOfficialBuild)'!='true' ">$(IsWiXCompany)</Company>
     <Company Condition=" '$(WixOfficialBuild)'=='true' ">WiX Toolset</Company>
     <Copyright>Copyright (c) .NET Foundation and contributors. All rights reserved.</Copyright>
 
-    <PackageEulaSource>$(RootFolder)OSMFEULA.txt</PackageEulaSource>
-    <PackageLicenseFile>OSMFEULA.txt</PackageLicenseFile>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <!-- Self-compiled binaries are distributed under MS-RL; ship LICENSE.TXT and declare the SPDX expression. -->
+    <PackageEulaSource>$(RootFolder)LICENSE.TXT</PackageEulaSource>
+    <PackageLicenseExpression>MS-RL</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 
-    <Product Condition=" '$(WixOfficialBuild)'!='true' ">WiX Dev Build</Product>
+    <Product Condition=" '$(WixOfficialBuild)'!='true' ">$(IsWiXProduct)</Product>
     <Product Condition=" '$(WixOfficialBuild)'=='true' ">WiX Toolset</Product>
-    <ProjectUrl>https://wixtoolset.org/</ProjectUrl>
+    <ProjectUrl Condition=" '$(WixOfficialBuild)'!='true' ">$(IsWiXProjectUrl)</ProjectUrl>
+    <ProjectUrl Condition=" '$(WixOfficialBuild)'=='true' ">https://wixtoolset.org/</ProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
     <PackageIconSource Condition=" '$(WixOfficialBuild)'!='true' ">$(MSBuildThisFileDirectory)internal\images\icon.png</PackageIconSource>
     <PackageIconSource Condition=" '$(WixOfficialBuild)'=='true' ">$(MSBuildThisFileDirectory)internal\images\official\icon.png</PackageIconSource>
