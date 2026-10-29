@@ -19,8 +19,8 @@
 
   <files>
     <file src="$eulaTxt$" />
-    <file src="$id$.dll" target="lib\netstandard2.0" />
-    <file src="$id$.xml" target="lib\netstandard2.0" />
+    <file src="WixToolset.Core.Native.dll" target="lib\netstandard2.0" />
+    <file src="WixToolset.Core.Native.xml" target="lib\netstandard2.0" />
 
     <file src="$projectFolder$\cubes\darice.cub" target="lib\netstandard2.0\cubes" />
     <file src="$projectFolder$\cubes\mergemod.cub" target="lib\netstandard2.0\cubes" />
