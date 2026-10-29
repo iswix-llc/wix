@@ -180,10 +180,11 @@ jobs:
             Get-ChildItem build/artifacts -Filter 'IsWiX.Sdk.*.nupkg' | ForEach-Object { Write-Host "Found $($_.Name)" }
             throw "Expected $sdk; the build did not pick up the $v version."
           }
-          # Every WiX managed library is signed after it builds; check the ones that ship in the CLI tool and SDK.
+          # Every WiX managed assembly is signed as it builds; check the ones that ship in the CLI tool and SDK,
+          # including each publish project's own assembly (wix.dll, WixToolset.Sdk.dll, WixToolset.BuildTasks.dll).
           $publish = 'build/wix/Release/publish'
-          $ours = Get-ChildItem $publish -Recurse -Filter 'WixToolset.*.dll'
-          if (-not $ours) { throw "No WixToolset.*.dll files found under $publish." }
+          $ours = Get-ChildItem $publish -Recurse -Include 'WixToolset.*.dll','wix.dll'
+          if (-not $ours) { throw "No WixToolset.*.dll or wix.dll files found under $publish." }
           $bad = foreach ($file in $ours) {
             $sig = Get-AuthenticodeSignature $file.FullName
             if ($sig.Status -ne 'Valid') { "$($file.FullName): $($sig.Status) $($sig.StatusMessage)" }

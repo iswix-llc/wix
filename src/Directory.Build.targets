@@ -88,13 +88,28 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="SignOutput" AfterTargets="AfterBuild"
+  <!--
+    Managed projects: sign the compiled assembly in obj\ before it is copied to bin\. Publish copies a
+    project's own assembly from obj\, so signing only the bin\ copy (as upstream does) leaves published
+    assemblies such as WixToolset.Sdk.dll, WixToolset.BuildTasks.dll and wix.dll unsigned.
+  -->
+  <Target Name="SignOutput" BeforeTargets="CopyFilesToOutputDirectory"
+          Condition=" '$(SigningEnabled)'=='true' and '$(SignOutput)'!='false' and '$(MSBuildProjectExtension)'=='.csproj' ">
+
+    <Message Importance="high" Text="Signing file: @(IntermediateAssembly->'%(FullPath)')" />
+
+    <Exec Command='"$(SigningToolExe)" $(SigningCommand) $(SigningConfiguration) "@(IntermediateAssembly->&apos;%(FullPath)&apos;)"'
+          WorkingDirectory="$(MSBuildProjectDirectory)" EchoOff="true" />
+  </Target>
+
+  <!-- Native projects link straight into bin\, so sign the target there. -->
+  <Target Name="SignNativeOutput" AfterTargets="AfterBuild"
           Condition=" '$(SigningEnabled)'=='true' and '$(SignOutput)'!='false' and
-                      ('$(MSBuildProjectExtension)'=='.csproj' or ('$(MSBuildProjectExtension)'=='.vcxproj' and '$(ConfigurationType)'!='StaticLibrary'))">
+                      '$(MSBuildProjectExtension)'=='.vcxproj' and '$(ConfigurationType)'!='StaticLibrary' ">
 
     <Message Importance="high" Text="Signing file: $(TargetPath)" />
 
-    <Exec Command='"$(SigningToolExe)" $(SigningCommand) $(SigningConfiguration) $(TargetPath)'
+    <Exec Command='"$(SigningToolExe)" $(SigningCommand) $(SigningConfiguration) "$(TargetPath)"'
           WorkingDirectory="$(MSBuildProjectDirectory)" EchoOff="true" />
   </Target>
 
