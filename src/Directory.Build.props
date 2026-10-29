@@ -35,7 +35,7 @@
   <!-- IsWiX branding: self-compiled builds published under MS-RL. Change these in one place. -->
   <PropertyGroup>
     <IsWiXAuthors>Christopher Painter</IsWiXAuthors>
-    <IsWiXCompany>IsWiX</IsWiXCompany>
+    <IsWiXCompany>ISWIX LLC</IsWiXCompany>
     <IsWiXProduct>IsWiX</IsWiXProduct>
     <IsWiXProjectUrl>https://github.com/iswix-llc/wix</IsWiXProjectUrl>
   </PropertyGroup>
