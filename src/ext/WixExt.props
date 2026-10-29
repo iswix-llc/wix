@@ -12,10 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="$(MSBuildProjectName).targets" PackagePath="build" />
+    <Content Include="$(MSBuildProjectName).targets" PackagePath="build/$(PackageId).targets" />
     <Content Include="$(PackageLicenseAcceptanceTargets)" Pack="true" PackagePath="build/CheckLicenseAcceptance.targets" />
     <Content Include="$(TargetPath)" PackagePath="$(WixExtensionPackageFolder)" />
 
-    <PackageReference Include="WixToolset.Extensibility" PrivateAssets="all" />
+    <PackageReference Include="IsWiX.Extensibility" PrivateAssets="all" />
   </ItemGroup>
 </Project>

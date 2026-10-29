@@ -294,16 +294,29 @@ namespace WixToolset.Core.ExtensionCache
                 return false;
             }
 
-            var extensionAssembly = Path.Combine(extensionFolder, extensionId + ".dll");
-
-            var present = File.Exists(extensionAssembly);
-            if (!present)
+            foreach (var assemblyName in GetExtensionAssemblyNames(extensionId))
             {
-                extensionAssembly = Path.Combine(extensionFolder, extensionId + ".exe");
-                present = File.Exists(extensionAssembly);
+                if (File.Exists(Path.Combine(extensionFolder, assemblyName + ".dll")) ||
+                    File.Exists(Path.Combine(extensionFolder, assemblyName + ".exe")))
+                {
+                    return true;
+                }
             }
 
-            return present;
+            return false;
+        }
+
+        // IsWiX: packages are published as IsWiX.* (nuget.org reserves WixToolset.*), but the extension
+        // assemblies keep their upstream WixToolset.* names, so check both file names.
+        private static IEnumerable<string> GetExtensionAssemblyNames(string extensionId)
+        {
+            yield return extensionId;
+
+            const string IsWiXPackagePrefix = "IsWiX.";
+            if (extensionId.StartsWith(IsWiXPackagePrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                yield return "WixToolset." + extensionId.Substring(IsWiXPackagePrefix.Length);
+            }
         }
     }
 }

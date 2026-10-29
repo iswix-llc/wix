@@ -9,10 +9,10 @@
 
   <Target Name="WixClean" BeforeTargets="Restore" Condition="'$(SuppressWixClean)' != 'true'">
     <RemoveDir Directories="$(RootBuildFolder)PowerShell.wixext" />
-    <RemoveDir Directories="$(USERPROFILE)\.nuget\packages\wixtoolset.PowerShell.wixext" Condition="'$(NUGET_PACKAGES)' == ''" />
-    <RemoveDir Directories="$(NUGET_PACKAGES)\wixtoolset.PowerShell.wixext" Condition="'$(NUGET_PACKAGES)' != ''" />
+    <RemoveDir Directories="$(USERPROFILE)\.nuget\packages\iswix.PowerShell.wixext" Condition="'$(NUGET_PACKAGES)' == ''" />
+    <RemoveDir Directories="$(NUGET_PACKAGES)\iswix.PowerShell.wixext" Condition="'$(NUGET_PACKAGES)' != ''" />
 
-    <Delete Files="$(ArtifactsFolder)WixToolset.PowerShell.wixext.*.nupkg" />
+    <Delete Files="$(ArtifactsFolder)IsWiX.PowerShell.wixext.*.nupkg" />
   </Target>
 
   <Target Name="WixTest">

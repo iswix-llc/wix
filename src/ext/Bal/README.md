@@ -20,9 +20,9 @@ To pay the Maintenance Fee, [become a Sponsor](https://github.com/sponsors/wixto
 Add the WiX Extension as a PackageReference to your .wixproj:
 
 ```
-<Project Sdk="WixToolset.Sdk/7.0.1">
+<Project Sdk="IsWiX.Sdk/7.0.1">
   <ItemGroup>
-    <PackageReference Include="WixToolset.BootstrapperApplications.wixext" Version="7.0.1" />
+    <PackageReference Include="IsWiX.BootstrapperApplications.wixext" Version="7.0.1" />
   </ItemGroup>
 </Project>
 ```

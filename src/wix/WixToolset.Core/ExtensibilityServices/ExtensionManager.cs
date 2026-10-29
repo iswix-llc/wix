@@ -74,10 +74,18 @@ namespace WixToolset.Core.ExtensibilityServices
                                 continue;
                             }
 
-                            checkPath = Path.Combine(extensionFolder, versionFolder, WixToolsetExtensionPackageFolder, extensionId + ".dll");
-                            checkedPaths.Add(checkPath);
+                            foreach (var assemblyName in GetExtensionAssemblyNames(extensionId))
+                            {
+                                checkPath = Path.Combine(extensionFolder, versionFolder, WixToolsetExtensionPackageFolder, assemblyName + ".dll");
+                                checkedPaths.Add(checkPath);
 
-                            if (TryLoadFromPath(checkPath, out assembly))
+                                if (TryLoadFromPath(checkPath, out assembly))
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (assembly != null)
                             {
                                 break;
                             }
@@ -166,6 +174,19 @@ namespace WixToolset.Core.ExtensibilityServices
             }
 
             return (IExtensionFactory)Activator.CreateInstance(type);
+        }
+
+        // IsWiX: packages are published as IsWiX.* (nuget.org reserves WixToolset.*), but the extension
+        // assemblies keep their upstream WixToolset.* names, so check both file names.
+        private static IEnumerable<string> GetExtensionAssemblyNames(string extensionId)
+        {
+            yield return extensionId;
+
+            const string IsWiXPackagePrefix = "IsWiX.";
+            if (extensionId.StartsWith(IsWiXPackagePrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                yield return "WixToolset." + extensionId.Substring(IsWiXPackagePrefix.Length);
+            }
         }
 
         private static bool TryParseExtensionReference(string extensionReference, out string extensionId, out string extensionVersion)

@@ -17,10 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="WixToolset.Burn" />
-    <PackageReference Include="WixToolset.Data" />
-    <PackageReference Include="WixToolset.Dtf.Resources" />
-    <PackageReference Include="WixToolset.Extensibility" />
-    <PackageReference Include="WixToolset.Versioning" />
+    <PackageReference Include="IsWiX.Burn" />
+    <PackageReference Include="IsWiX.Data" />
+    <PackageReference Include="IsWiX.Dtf.Resources" />
+    <PackageReference Include="IsWiX.Extensibility" />
+    <PackageReference Include="IsWiX.Versioning" />
   </ItemGroup>
 </Project>

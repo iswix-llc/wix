@@ -33,13 +33,13 @@ dotnet test ^
 
 :clean
 @rd /s/q "..\..\build\libs" 2> nul
-@del "..\..\build\artifacts\WixToolset.DUtil.*.nupkg" 2> nul
-@del "..\..\build\artifacts\WixToolset.Versioning.*.nupkg" 2> nul
-@del "..\..\build\artifacts\WixToolset.WcaUtil.*.nupkg" 2> nul
+@del "..\..\build\artifacts\IsWiX.DUtil.*.nupkg" 2> nul
+@del "..\..\build\artifacts\IsWiX.Versioning.*.nupkg" 2> nul
+@del "..\..\build\artifacts\IsWiX.WcaUtil.*.nupkg" 2> nul
 @del "%_L%\TestResults\libs.trx" 2> nul
-@rd /s/q "%USERPROFILE%\.nuget\packages\wixtoolset.dutil" 2> nul
-@rd /s/q "%USERPROFILE%\.nuget\packages\wixtoolset.versioning" 2> nul
-@rd /s/q "%USERPROFILE%\.nuget\packages\wixtoolset.wcautil" 2> nul
+@rd /s/q "%USERPROFILE%\.nuget\packages\iswix.dutil" 2> nul
+@rd /s/q "%USERPROFILE%\.nuget\packages\iswix.versioning" 2> nul
+@rd /s/q "%USERPROFILE%\.nuget\packages\iswix.wcautil" 2> nul
 @exit /b
 
 :end

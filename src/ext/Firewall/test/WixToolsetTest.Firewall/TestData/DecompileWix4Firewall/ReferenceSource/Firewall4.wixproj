@@ -1,6 +1,6 @@
-<Project Sdk="WixToolset.Sdk/4.0.6">
+<Project Sdk="IsWiX.Sdk/4.0.6">
   <ItemGroup>
-    <PackageVersion Update="WixToolset.Firewall.wixext" Version="4.0.6" />
-    <PackageReference Include="WixToolset.Firewall.wixext" />
+    <PackageVersion Update="IsWiX.Firewall.wixext" Version="4.0.6" />
+    <PackageReference Include="IsWiX.Firewall.wixext" />
   </ItemGroup>
 </Project>

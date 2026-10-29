@@ -28,16 +28,16 @@
 
   <Target Name="WixClean" BeforeTargets="Restore" Condition="'$(SuppressWixClean)' != 'true'">
     <RemoveDir Directories="$(RootBuildFolder)Bal.wixext" />
-    <RemoveDir Directories="$(USERPROFILE)\.nuget\packages\wixtoolset.bal.wixext" Condition="'$(NUGET_PACKAGES)' == ''" />
-    <RemoveDir Directories="$(NUGET_PACKAGES)\wixtoolset.bal.wixext" Condition="'$(NUGET_PACKAGES)' != ''" />
-    <RemoveDir Directories="$(USERPROFILE)\.nuget\packages\wixtoolset.bootstrapperapplications.wixext" Condition="'$(NUGET_PACKAGES)' == ''" />
-    <RemoveDir Directories="$(NUGET_PACKAGES)\wixtoolset.bootstrapperapplications.wixext" Condition="'$(NUGET_PACKAGES)' != ''" />
-    <RemoveDir Directories="$(USERPROFILE)\.nuget\packages\wixtoolset.wixstandardbootstrapperapplicationfunctionapi.wixext" Condition="'$(NUGET_PACKAGES)' == ''" />
-    <RemoveDir Directories="$(NUGET_PACKAGES)\wixtoolset.wixstandardbootstrapperapplicationfunctionapi.wixext" Condition="'$(NUGET_PACKAGES)' != ''" />
+    <RemoveDir Directories="$(USERPROFILE)\.nuget\packages\iswix.bal.wixext" Condition="'$(NUGET_PACKAGES)' == ''" />
+    <RemoveDir Directories="$(NUGET_PACKAGES)\iswix.bal.wixext" Condition="'$(NUGET_PACKAGES)' != ''" />
+    <RemoveDir Directories="$(USERPROFILE)\.nuget\packages\iswix.bootstrapperapplications.wixext" Condition="'$(NUGET_PACKAGES)' == ''" />
+    <RemoveDir Directories="$(NUGET_PACKAGES)\iswix.bootstrapperapplications.wixext" Condition="'$(NUGET_PACKAGES)' != ''" />
+    <RemoveDir Directories="$(USERPROFILE)\.nuget\packages\iswix.wixstandardbootstrapperapplicationfunctionapi.wixext" Condition="'$(NUGET_PACKAGES)' == ''" />
+    <RemoveDir Directories="$(NUGET_PACKAGES)\iswix.wixstandardbootstrapperapplicationfunctionapi.wixext" Condition="'$(NUGET_PACKAGES)' != ''" />
 
-    <Delete Files="$(ArtifactsFolder)WixToolset.Bal.wixext.*.nupkg" />
-    <Delete Files="$(ArtifactsFolder)WixToolset.BootstrapperApplications.wixext.*.nupkg" />
-    <Delete Files="$(ArtifactsFolder)WixToolset.WixStandardBootstrapperApplicationFunctionApi.wixext.*.nupkg" />
+    <Delete Files="$(ArtifactsFolder)IsWiX.Bal.wixext.*.nupkg" />
+    <Delete Files="$(ArtifactsFolder)IsWiX.BootstrapperApplications.wixext.*.nupkg" />
+    <Delete Files="$(ArtifactsFolder)IsWiX.WixStandardBootstrapperApplicationFunctionApi.wixext.*.nupkg" />
   </Target>
 
   <Target Name="WixTest">
