@@ -14,8 +14,8 @@
     <ProjectReference Include="..\WixprojLibraryVcxprojDll\WixprojLibraryVcxprojDll.wixproj" />
     <ProjectReference Include="..\WixprojModuleCsprojWinFormsNetFx\WixprojModuleCsprojWinFormsNetFx.wixproj" />
 
-    <PackageReference Include="Wixtoolset.UI.wixext" />
-    <PackageReference Include="Wixtoolset.Util.wixext" />
+    <PackageReference Include="IsWiX.UI.wixext" />
+    <PackageReference Include="IsWiX.Util.wixext" />
   </ItemGroup>
 
   <Target Name="SignMsi">
