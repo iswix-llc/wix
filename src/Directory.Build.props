@@ -37,7 +37,7 @@
     <IsWiXAuthors>Christopher Painter</IsWiXAuthors>
     <IsWiXCompany>IsWiX</IsWiXCompany>
     <IsWiXProduct>IsWiX</IsWiXProduct>
-    <IsWiXProjectUrl>https://github.com/chrpai/wix</IsWiXProjectUrl>
+    <IsWiXProjectUrl>https://github.com/iswix-llc/wix</IsWiXProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup>
