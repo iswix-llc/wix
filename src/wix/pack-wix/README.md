@@ -1,20 +1,17 @@
-# wix - the WiX Toolset from the command-line
+# iswix - the IsWiX build of the WiX Toolset from the command-line
 
-The `wix` package provides the WiX Toolset as a .NET Tool, perfect for your command-line packaging pleasure (even if we recommend using the [WixToolset.Sdk][sdk]).
+The `iswix` package provides the WiX Toolset as a .NET Tool, perfect for your command-line packaging pleasure (even if we recommend using the [IsWiX.Sdk][sdk]).
 
 [Web Site][web] | [Documentation][docs] | [Issue Tracker][issues] | [Discussions][discussions]
 
 
-## Open Source Maintenance Fee
+## About this build
 
-To ensure the long-term sustainability of this project, users of this package who generate revenue must pay an [Open Source Maintenance Fee][osmf]. While the source code is freely available under the terms of the [LICENSE][license], this package and other aspects of the project require [adherence to the Open Source Maintenance Fee EULA][eula].
-
-To pay the Maintenance Fee, [become a Sponsor](https://github.com/sponsors/wixtoolset).
-
+This package is part of IsWiX, a build of the [WiX Toolset](https://wixtoolset.org/) compiled from source at [chrpai/wix](https://github.com/chrpai/wix) and distributed under the [Microsoft Reciprocal License (MS-RL)](https://github.com/chrpai/wix/blob/main/LICENSE.TXT). It is not an official WiX Toolset release and is not affiliated with or endorsed by the WiX Toolset project. Package IDs use the `IsWiX.` prefix; assembly names and namespaces are unchanged. Please report problems with these packages at [chrpai/wix](https://github.com/chrpai/wix/issues).
 
 ## Before we begin
 
-For most users, we recommend using the [WixToolset.Sdk][sdk] to build your installation packages instead of this command-line tool. The Sdk provides a better development experience than the command-line, especially as your project grows. The following is a quick example.
+For most users, we recommend using the [IsWiX.Sdk][sdk] to build your installation packages instead of this command-line tool. The Sdk provides a better development experience than the command-line, especially as your project grows. The following is a quick example.
 
 Example project file: `QuickStart.wixproj`
 ```
@@ -39,16 +36,16 @@ dotnet build
 
 ## Getting started
 
-If you still decide to use this command-line tool instead of the [WixToolset.Sdk][sdk], install the latest version with:
+If you still decide to use this command-line tool instead of the [IsWiX.Sdk][sdk], install the latest version with:
 
 ```
-dotnet tool install --global wix
+dotnet tool install --global iswix
 ```
 
 Verify it was successfully installed with:
 
 ```
-wix --version
+iswix --version
 ```
 
 For more information, see https://docs.firegiant.com/wix/using-wix/#command-line-net-tool. To read about available commands and switches, see https://docs.firegiant.com/wix/tools/wixexe/.
@@ -66,7 +63,7 @@ For more information, see https://docs.firegiant.com/wix/using-wix/#command-line
 [docs]: https://docs.firegiant.com/wixtoolset/
 [issues]: https://github.com/wixtoolset/issues/issues
 [discussions]: https://github.com/orgs/wixtoolset/discussions
-[sdk]: https://www.nuget.org/packages/WixToolset.Sdk/
+[sdk]: https://www.nuget.org/packages/IsWiX.Sdk/
 [osmf]: https://opensourcemaintenancefee.org/
 [license]: https://github.com/wixtoolset/wix/blob/main/LICENSE.TXT
 [eula]: https://github.com/wixtoolset/wix/blob/main/OSMFEULA.txt
