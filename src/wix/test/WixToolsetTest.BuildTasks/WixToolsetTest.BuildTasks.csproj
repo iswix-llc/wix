@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Utilities.Core" />
-    <PackageReference Include="WixToolset.Data" />
+    <PackageReference Include="IsWiX.Data" />
     <PackageReference Include="WixInternal.TestSupport" />
   </ItemGroup>
 </Project>

@@ -69,12 +69,12 @@ namespace WixToolsetTest.Msmq
             var extensionResult = WixRunner.Execute(warningsAsErrors: true, new[]
                 {
                     "extension", "add",
-                    "WixToolset.Util.wixext",
+                    "IsWiX.Util.wixext",
                 });
 
             args = args.Concat(new[]
             {
-                "-ext", "WixToolset.Util.wixext",
+                "-ext", "IsWiX.Util.wixext",
                 "-arch", "arm64"
             }).ToArray();
 
@@ -86,7 +86,7 @@ namespace WixToolsetTest.Msmq
         {
             args = args.Concat(new[]
             {
-                "-ext", "WixToolset.Util.wixext",
+                "-ext", "IsWiX.Util.wixext",
             }).ToArray();
 
             var result = WixRunner.Execute(args);

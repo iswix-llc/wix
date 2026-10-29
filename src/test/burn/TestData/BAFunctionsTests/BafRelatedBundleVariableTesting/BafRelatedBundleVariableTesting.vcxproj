@@ -59,7 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="WixToolset.WixStandardBootstrapperApplicationFunctionApi" />
+    <PackageReference Include="IsWiX.WixStandardBootstrapperApplicationFunctionApi" />
   </ItemGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

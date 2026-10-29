@@ -53,5 +53,14 @@
     <PackageTags>WiX MSI install setup</PackageTags>
   </PropertyGroup>
 
+  <!--
+    IsWiX packaging: nuget.org reserves the WixToolset.* prefix, so publish every WixToolset.* project
+    as IsWiX.*. Assembly names and namespaces are unchanged so extensions built against upstream still load.
+  -->
+  <PropertyGroup>
+    <IsWiXPackagePrefix>IsWiX.</IsWiXPackagePrefix>
+    <PackageId Condition=" '$(PackageId)'=='' and $(MSBuildProjectName.StartsWith('WixToolset.')) ">$(IsWiXPackagePrefix)$(MSBuildProjectName.Substring(11))</PackageId>
+  </PropertyGroup>
+
   <Import Project="Directory$(MSBuildProjectExtension).props" Condition=" Exists('Directory$(MSBuildProjectExtension).props') " />
 </Project>

@@ -18,7 +18,7 @@
       <group targetFramework=".NETFramework4.6.2" />
       <group targetFramework=".NETStandard2.0" />
       <group targetFramework="Native">
-        <dependency id="WixToolset.DUtil" version="[$version$,$nextmajorversion$)" />
+        <dependency id="IsWiX.DUtil" version="[$version$,$nextmajorversion$)" />
       </group>
     </dependencies>
   </metadata>
@@ -28,7 +28,7 @@
     <file src="$iconPng$" />
     <file src="$projectFolder$\README.md" />
 
-    <file src="$projectFolder$\build\WixToolset.BootstrapperApplicationApi.props" target="build\" />
+    <file src="$projectFolder$\build\WixToolset.BootstrapperApplicationApi.props" target="build\$id$.props" />
     <file src="$licenseAcceptanceTargets$" target="build\$id$.targets" />
 
     <file src="$projectFolder$\build\_._" target="lib\native" />

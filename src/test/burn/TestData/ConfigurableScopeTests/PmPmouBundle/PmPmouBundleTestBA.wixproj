@@ -1,4 +1,4 @@
-<Project Sdk="WixToolset.Sdk">
+<Project Sdk="IsWiX.Sdk">
   <PropertyGroup>
     <BA>TestBA</BA>
   </PropertyGroup>
