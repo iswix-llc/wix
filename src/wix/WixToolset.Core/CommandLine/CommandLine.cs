@@ -128,12 +128,6 @@ namespace WixToolset.Core.CommandLine
                 extension.PostParse();
             }
 
-            if (command != null && this.RequiresEulaAcceptance(command) && !EulaCommand.IsAccepted(this.AcceptedEulaValues))
-            {
-                parser.ReportErrorArgument("eula", CoreErrors.AcceptEulaRequired());
-                command = null;
-            }
-
             // If we hit an error, do not return a command.
             if (!String.IsNullOrEmpty(parser.ErrorArgument))
             {
@@ -269,13 +263,6 @@ namespace WixToolset.Core.CommandLine
             }
 
             return false;
-        }
-
-        private bool RequiresEulaAcceptance(ICommandLineCommand command)
-        {
-            return !(command is HelpCommand) &&
-                   !(command is VersionCommand) &&
-                   !(command is EulaCommand);
         }
 
         private void ParseSuppressWarning(string parameter, int offset, ICommandLineParser parser)

@@ -24,7 +24,6 @@
     <file src="$iconPng$" />
     <file src="$projectFolder$\README.md" />
     <file src="$projectFolder$\build\WixToolset.BootstrapperExtensionApi.props" target="build\$id$.props" />
-    <file src="$licenseAcceptanceTargets$" target="build\$id$.targets" />
     <file src="$projectFolder$\inc\*" target="build\native\include" />
     <file src="$projectFolder$\..\inc\BootstrapperExtensionTypes.h" target="build\native\include" />
     <file src="$projectFolder$\..\inc\BootstrapperExtensionEngineTypes.h" target="build\native\include" />

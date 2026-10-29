@@ -9,5 +9,4 @@
       Condition=" !Exists('$(MSBuildThisFileDirectory)..\$(WixToolsetExtensionPackageFolder)\WixToolset.UI.wixext.dll') " />
   </ItemGroup>
 
-  <Import Project="CheckLicenseAcceptance.targets" />
 </Project>

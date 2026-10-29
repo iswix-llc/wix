@@ -27,7 +27,6 @@
     <file src="$iconPng$" />
     <file src="$projectFolder$\README.md" />
     <file src="$projectFolder$\build\WixToolset.WixStandardBootstrapperApplicationFunctionApi.props" target="build\$id$.props" />
-    <file src="$licenseAcceptanceTargets$" target="build\$id$.targets" />
     <file src="$projectFolder$\inc\*" target="lib\native\include" />
     <file src="..\..\v143\x86\wixstdfn.lib" target="lib\native\v14\x86" />
     <file src="..\..\v143\x64\wixstdfn.lib" target="lib\native\v14\x64" />
