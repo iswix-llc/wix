@@ -7,8 +7,30 @@
     <SigningDescription Condition=" '$(SigningDescription)'=='' ">$(Product)</SigningDescription>
     <SigningDescriptionUrl Condition=" '$(SigningDescriptionUrl)'=='' ">$(ProjectUrl)</SigningDescriptionUrl>
     <SigningToolExe>$(ToolsFolder)\sign.exe</SigningToolExe>
+    <SigningCommonOptions>--publisher-name "$(SigningPublisherName)" --description "$(SigningDescription)" --description-url "$(SigningDescriptionUrl)" --recurse-containers=false --azure-credential-type azure-cli --verbosity warning</SigningCommonOptions>
+  </PropertyGroup>
+
+  <!--
+    IsWiX: Azure Artifact Signing (formerly Trusted Signing), the same account and certificate profile
+    IsWiX.WindowsInstaller signs with. Enabled by setting SigningArtifactAccount (the publish workflow sets
+    it); requires `az login` (azure/login in CI) and sign CLI 0.9.1-beta.26330.1 or later.
+    NuGet packages are not signed in this mode, matching IsWiX.WindowsInstaller (set SignNupkg=true to opt in).
+  -->
+  <PropertyGroup Condition=" '$(SigningArtifactAccount)'!='' ">
+    <SigningEnabled>true</SigningEnabled>
+    <SigningArtifactEndpoint Condition=" '$(SigningArtifactEndpoint)'=='' ">https://eus.codesigning.azure.net/</SigningArtifactEndpoint>
+    <SigningArtifactCertificateProfile Condition=" '$(SigningArtifactCertificateProfile)'=='' ">IsWiX</SigningArtifactCertificateProfile>
+    <SigningTimestampUrl Condition=" '$(SigningTimestampUrl)'=='' ">http://timestamp.acs.microsoft.com</SigningTimestampUrl>
+    <SignNupkg Condition=" '$(SignNupkg)'=='' ">false</SignNupkg>
+    <SigningCommand>code artifact-signing</SigningCommand>
+    <SigningConfiguration>$(SigningCommonOptions) --artifact-signing-endpoint "$(SigningArtifactEndpoint)" --artifact-signing-account "$(SigningArtifactAccount)" --artifact-signing-certificate-profile "$(SigningArtifactCertificateProfile)" --timestamp-url "$(SigningTimestampUrl)"</SigningConfiguration>
+  </PropertyGroup>
+
+  <!-- Upstream WiX: Azure Key Vault certificate. Enabled by setting SigningCertName (and SigningKeyVaultUri). -->
+  <PropertyGroup Condition=" '$(SigningArtifactAccount)'=='' and '$(SigningCertName)'!='' ">
+    <SigningEnabled>true</SigningEnabled>
     <SigningCommand>code azure-key-vault</SigningCommand>
-    <SigningConfiguration>--publisher-name "$(SigningPublisherName)" --description "$(SigningDescription)" --description-url "$(SigningDescriptionUrl)" --recurse-containers=false --azure-credential-type azure-cli --azure-key-vault-url "$(SigningKeyVaultUri)" --azure-key-vault-certificate "$(SigningCertName)" --verbosity warning</SigningConfiguration>
+    <SigningConfiguration>$(SigningCommonOptions) --azure-key-vault-url "$(SigningKeyVaultUri)" --azure-key-vault-certificate "$(SigningCertName)"</SigningConfiguration>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(IsWixTestSupportProject)'=='true' ">
@@ -67,7 +89,7 @@
   </Target>
 
   <Target Name="SignOutput" AfterTargets="AfterBuild"
-          Condition=" '$(SigningCertName)'!='' and '$(SignOutput)'!='false' and
+          Condition=" '$(SigningEnabled)'=='true' and '$(SignOutput)'!='false' and
                       ('$(MSBuildProjectExtension)'=='.csproj' or ('$(MSBuildProjectExtension)'=='.vcxproj' and '$(ConfigurationType)'!='StaticLibrary'))">
 
     <Message Importance="high" Text="Signing file: $(TargetPath)" />
@@ -77,7 +99,7 @@
   </Target>
 
   <Target Name="SignNupkg" AfterTargets="Pack;PackNative"
-          Condition=" '$(SigningCertName)'!='' and '@(NuGetPackOutput)'!='' and '$(SignNupkg)'!='false' ">
+          Condition=" '$(SigningEnabled)'=='true' and '@(NuGetPackOutput)'!='' and '$(SignNupkg)'!='false' ">
     <ItemGroup>
       <SigningNupkgs Include="@(NuGetPackOutput)" Condition=" '%(Extension)'=='.nupkg' " />
     </ItemGroup>
@@ -89,21 +111,21 @@
   </Target>
 
   <!-- We want to be very precise about which MSIs we sign, so use 'true' for that precision. -->
-  <Target Name="SignMsi" Condition=" '$(SigningCertName)'!='' and '$(SignOutput)'=='true' ">
+  <Target Name="SignMsi" Condition=" '$(SigningEnabled)'=='true' and '$(SignOutput)'=='true' ">
     <Message Importance="high" Text="Signing MSI: @(SignMsi->&apos;%(Identity)&apos;)" />
 
     <Exec Command='"$(SigningToolExe)" $(SigningCommand) $(SigningConfiguration) "@(SignMsi->&apos;%(Identity)&apos;)"'
           WorkingDirectory="$(MSBuildProjectDirectory)" EchoOff="true" />
   </Target>
 
-  <Target Name="SignBundleEngine" Condition=" '$(SigningCertName)'!='' and '$(SignOutput)'!='false' ">
+  <Target Name="SignBundleEngine" Condition=" '$(SigningEnabled)'=='true' and '$(SignOutput)'!='false' ">
     <Message Importance="high" Text="Signing bundle engine: @(SignBundleEngine->&apos;%(Identity)&apos;)" />
 
     <Exec Command='"$(SigningToolExe)" $(SigningCommand) $(SigningConfiguration) "@(SignBundleEngine->&apos;%(Identity)&apos;)"'
           WorkingDirectory="$(MSBuildProjectDirectory)" EchoOff="true" />
   </Target>
 
-  <Target Name="SignBundle" Condition=" '$(SigningCertName)'!='' and '$(SignOutput)'!='false' ">
+  <Target Name="SignBundle" Condition=" '$(SigningEnabled)'=='true' and '$(SignOutput)'!='false' ">
     <Message Importance="high" Text="Signing bundle: @(SignBundle->&apos;%(Identity)&apos;)" />
 
     <Exec Command='"$(SigningToolExe)" $(SigningCommand) $(SigningConfiguration) "@(SignBundle->&apos;%(Identity)&apos;)"'

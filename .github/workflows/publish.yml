@@ -1,0 +1,162 @@
+name: Publish IsWiX packages
+
+# Mirrors IsWiX.WindowsInstaller's publish workflow: run by hand, pick a version bump, build and test,
+# sign with Azure Artifact Signing (ISWIX-LLC / IsWiX), push to nuget.org with trusted publishing,
+# then push the release tag.
+#
+# The version comes from git tags (SomeVer): this workflow tags HEAD of main locally before building,
+# so the build is versioned exactly as the release. The tag is pushed only after the packages are on
+# nuget.org, so a failed run can simply be re-run with the same bump.
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Which part of the version to increment (from the latest vX.Y.Z tag)
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  NUGET_XMLDOC_MODE: skip
+  # Packages built but deliberately not published. IsWiX.Bal.wixext is upstream's compatibility shim
+  # for the old WixToolset.Bal.wixext id, which no IsWiX user would reference.
+  UNPUBLISHED_PACKAGES: IsWiX.Bal.wixext
+
+jobs:
+  publish:
+    runs-on: windows-2025-vs2026
+    timeout-minutes: 300
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0 # SomeVer needs the tags and history to compute the version.
+
+      - name: Install sign CLI tool
+        shell: cmd
+        run: dotnet tool install --tool-path build\.tools sign --version 0.9.1-beta.26528.1
+
+      - name: Configure automated logging and crash dumps
+        shell: cmd
+        run: |
+          reg add HKLM\Software\Policies\Microsoft\Windows\Installer /t REG_SZ /v Logging /d voicewarmupx /f
+          reg add HKLM\Software\WOW6432Node\Policies\Microsoft\Windows\Installer /t REG_SZ /v Logging /d voicewarmupx /f
+          reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_EXPAND_SZ /v DumpFolder /d "%CD%\build\logs\crashdumps" /f
+          reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_DWORD /v DumpCount /d 10 /f
+          reg add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_DWORD /v DumpType /d 1 /f
+          reg add "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_EXPAND_SZ /v DumpFolder /d "%CD%\build\logs\crashdumps" /f
+          reg add "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_DWORD /v DumpCount /d 10 /f
+          reg add "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_DWORD /v DumpType /d 1
+
+      - name: Choose and tag the release version
+        id: version
+        shell: pwsh
+        run: |
+          $releaseTags = git tag --list 'v*' | Where-Object { $_ -match '^v\d+\.\d+\.\d+$' }
+          if (-not $releaseTags) {
+            throw 'No vX.Y.Z release tags found. Push the upstream WiX tags first: git fetch upstream --tags; git push origin --tags'
+          }
+          $latest = $releaseTags | ForEach-Object { [version]($_.Substring(1)) } | Sort-Object -Descending | Select-Object -First 1
+          $major = $latest.Major; $minor = $latest.Minor; $patch = $latest.Build
+          switch ('${{ inputs.bump }}') {
+            'major' { $major++; $minor = 0; $patch = 0 }
+            'minor' { $minor++; $patch = 0 }
+            'patch' { $patch++ }
+          }
+          $new = "$major.$minor.$patch"
+          $tag = "v$new"
+          if (git ls-remote --tags origin "refs/tags/$tag") { throw "$tag already exists on origin." }
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git tag -a $tag -m "Release $new"
+          if ($LASTEXITCODE -ne 0) { throw "Tagging $tag failed." }
+          "version=$new" >> $env:GITHUB_OUTPUT
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          Write-Host "Latest release tag v$latest; publishing $new"
+
+      - name: Sign in to Azure (federated identity)
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Signing happens inside the build (binaries, MSIs, bundle engines and bundles) through
+      # src/Directory.Build.targets; MSBuild reads these environment variables as properties.
+      # Build logs are not uploaded: binlogs capture environment variables, including the OIDC token request values.
+      - name: Build, test and sign
+        shell: cmd
+        run: ./src/build_official.cmd
+        env:
+          RuntimeTestsEnabled: true
+          SigningArtifactAccount: ISWIX-LLC
+          SigningArtifactCertificateProfile: IsWiX
+          SigningArtifactEndpoint: https://eus.codesigning.azure.net/
+
+      - name: Verify the version and signatures
+        shell: pwsh
+        run: |
+          $v = '${{ steps.version.outputs.version }}'
+          $sdk = "build/artifacts/IsWiX.Sdk.$v.nupkg"
+          if (-not (Test-Path $sdk)) {
+            Get-ChildItem build/artifacts -Filter 'IsWiX.Sdk.*.nupkg' | ForEach-Object { Write-Host "Found $($_.Name)" }
+            throw "Expected $sdk; the build did not pick up the $v version."
+          }
+          # Every WiX managed library is signed after it builds; check the ones that ship in the CLI tool and SDK.
+          $publish = 'build/wix/Release/publish'
+          $ours = Get-ChildItem $publish -Recurse -Filter 'WixToolset.*.dll'
+          if (-not $ours) { throw "No WixToolset.*.dll files found under $publish." }
+          $bad = foreach ($file in $ours) {
+            $sig = Get-AuthenticodeSignature $file.FullName
+            if ($sig.Status -ne 'Valid') { "$($file.FullName): $($sig.Status) $($sig.StatusMessage)" }
+          }
+          if ($bad) { $bad | ForEach-Object { Write-Host $_ }; throw 'Some binaries are not validly signed.' }
+          $signer = (Get-AuthenticodeSignature $ours[0].FullName).SignerCertificate.Subject
+          Write-Host "$($ours.Count) binaries validly signed by: $signer"
+
+      - name: Get a short-lived NuGet key (trusted publishing)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Publish to nuget.org
+        shell: pwsh
+        run: |
+          $v = '${{ steps.version.outputs.version }}'
+          $suffix = ".$v.nupkg"
+          $skip = $env:UNPUBLISHED_PACKAGES -split '[;,\s]+' | Where-Object { $_ }
+          $packages = Get-ChildItem build/artifacts -Filter "*$suffix" | Where-Object {
+            $id = $_.Name.Substring(0, $_.Name.Length - $suffix.Length)
+            ($id -like 'IsWiX.*' -or $id -eq 'iswix') -and -not ($skip -contains $id)
+          }
+          if (-not $packages) { throw "No IsWiX packages for $v found in build/artifacts." }
+          foreach ($package in $packages) {
+            Write-Host "Pushing $($package.Name)"
+            dotnet nuget push $package.FullName --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+            if ($LASTEXITCODE -ne 0) { throw "Pushing $($package.Name) failed." }
+          }
+          Write-Host "Published $($packages.Count) packages."
+
+      - name: Push the release tag
+        shell: pwsh
+        run: |
+          $tag = '${{ steps.version.outputs.tag }}'
+          git push origin "refs/tags/$tag"
+          if ($LASTEXITCODE -ne 0) { throw "Pushing $tag failed." }
