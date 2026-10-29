@@ -1,15 +1,23 @@
-name: Build WiX Toolset v7
+name: CI (v7)
+
+# Builds and tests every push to and pull request into release/* branches, unsigned.
+# Releases (signing and nuget.org) are done by publish.yml on main, which builds this branch.
 
 on:
   push:
     branches:
-      - main
-    tags:
-      - v**
+      - release/*
   pull_request:
     branches:
-      - main
+      - release/*
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   DOTNET_NOLOGO: true
@@ -19,29 +27,18 @@ env:
 
 jobs:
   build:
-    name: Build
-    runs-on: windows-2022
+    name: Build and test
+    runs-on: windows-2022 # WiX v7 builds with VS2022 (v143 toolset).
+    timeout-minutes: 300
     env:
-      RepoOrg: ${{ github.repository_owner }}
-      SignBuild: ${{ github.repository_owner == 'wixtoolset' && startsWith(github.ref, 'refs/tags/v') }}
-      WixOfficialBuild: ${{ github.repository_owner == 'wixtoolset' && startsWith(github.ref, 'refs/tags/v') }}
-    permissions:
-      packages: write
-      id-token: write
+      # Never an official WiX build. Kept set (to "false") because some tests, such as the Firewall
+      # extension's, turn on MSI validation whenever this variable is present.
+      WixOfficialBuild: false
     steps:
-      - name: Checkout code
+      - name: Check out the code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-
-      # - name: Configure Visual Studio
-      #   shell: cmd
-      #   run: ./src/vs_config.cmd
-
-      - name: Install sign tool
-        if: ${{ env.SignBuild == 'true' }}
-        shell: cmd
-        run: dotnet tool install --tool-path build\.tools sign --version 0.9.1-beta.26102.1
+          fetch-depth: 0 # SomeVer needs the tags and history to compute the version.
 
       - name: Configure automated logging and crash dumps
         shell: cmd
@@ -55,28 +52,17 @@ jobs:
           reg add "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_DWORD /v DumpCount /d 10 /f
           reg add "HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\Windows Error Reporting\LocalDumps" /t REG_DWORD /v DumpType /d 1
 
-      - name: 'Az CLI login'
-        if: ${{ env.SignBuild == 'true' }}
-        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # tag: v2.3.0
-        with:
-          allow-no-subscriptions: true
-          client-id: ${{ secrets.WIX_SIGNING_CLIENTID }}
-          tenant-id: ${{ secrets.WIX_SIGNING_TENANTID }}
-
-      - name: Build wix7
+      - name: Build and test
         shell: cmd
         run: ./src/build_official.cmd
         env:
           RuntimeTestsEnabled: true
-          AZURE_CLIENT_ID: ${{ env.SignBuild == 'true' && secrets.WIX_SIGNING_CLIENTID || '' }}
-          AZURE_TENANT_ID: ${{ env.SignBuild == 'true' && secrets.WIX_SIGNING_TENANTID || '' }}
-          SigningKeyVaultUri:  ${{ env.SignBuild == 'true' && secrets.WIX_SIGNING_VAULTURI || '' }}
-          SigningCertName:  ${{ env.SignBuild == 'true' && secrets.WIX_SIGNING_CERTNAME || '' }}
 
       - name: Validate test results
         shell: cmd
         run: 7z a build\testresults.zip @src\testresultfilelist.txt
 
+      # Unsigned development build of the packages, for trying out a commit.
       - name: Save build
         uses: actions/upload-artifact@v4
         with:
@@ -98,14 +84,10 @@ jobs:
         shell: cmd
         run: wevtutil epl System build\logs\System.evtx /q:"Event/System/TimeCreated[timediff(@SystemTime) <= 86400000]"
 
-      # Do NOT publish logs on `official builds` (version tagged builds) as they may contain secrets in them.
+      # Safe to upload: this job has no secrets and no id-token permission.
       - name: Save logs
-        if: ${{ env.SignBuild != 'true' && !cancelled() }}
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: logs_${{ github.run_id }}
           path: build/logs/
-
-      - name: Push to GitHub Packages
-        if: ${{ github.event_name == 'push' && github.repository_owner == 'wixtoolset' && (env.WixOfficialBuild == 'true' || github.ref == 'refs/heads/main') }}
-        run: dotnet nuget push "build/artifacts/**/*.nupkg" --source https://nuget.pkg.github.com/wixtoolset/index.json --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
