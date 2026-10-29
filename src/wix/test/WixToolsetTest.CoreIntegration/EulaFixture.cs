@@ -15,21 +15,30 @@ namespace WixToolsetTest.CoreIntegration
         private static readonly string EulaFilePath = Path.Combine(EulaFileFolder, "wix" + SomeVerInfo.Major + "-osmf-eula.txt");
 
         [Fact]
-        public void RequiresEulaAcceptance()
+        public void BuildsWithoutEulaAcceptance()
         {
             CleanEulaFile();
 
-            var folder = TestData.Get(@"TestData");
+            var folder = TestData.Get(@"TestData", "SingleFile");
 
-            var result = WixRunner.Execute(
-            [
-                "build",
-                Path.Combine(folder, "SingleFile", "Package.wxs"),
-            ], out var messages, skipAcceptEula: true);
-            WixAssert.CompareLineByLine(
-            [
-                $"Error 7015 - You must accept the Open Source Maintenance Fee (OSMF) EULA to use WiX Toolset v{SomeVerInfo.Major}. For instructions, see https://wixtoolset.org/osmf/",
-            ], [.. messages.Select(s => $"{s.Level} {s.Id} - {s}")]);
+            using (var fs = new DisposableFileSystem())
+            {
+                var baseFolder = fs.GetFolder();
+
+                var result = WixRunner.Execute(
+                [
+                    "build",
+                    Path.Combine(folder, "Package.wxs"),
+                    Path.Combine(folder, "PackageComponents.wxs"),
+                    "-loc", Path.Combine(folder, "Package.en-us.wxl"),
+                    "-bindpath", Path.Combine(folder, "data"),
+                    "-intermediateFolder", Path.Combine(baseFolder, "obj"),
+                    "-o", Path.Combine(baseFolder, "bin", "test.msi"),
+                ], out var messages, skipAcceptEula: true);
+
+                Assert.Empty(messages.Where(m => m.Level == WixToolset.Data.MessageLevel.Error).Select(m => m.ToString()));
+                Assert.Equal(0, result);
+            }
         }
 
         [Fact]

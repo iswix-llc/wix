@@ -215,23 +215,6 @@
         ToolPath="$(WixToolDir)" />
   </Target>
 
-  <Target
-    Name="CheckLicenseAcceptance"
-    BeforeTargets="CoreCompile"
-    Condition=" '$(AcceptEula)' == '' ">
-
-    <PropertyGroup>
-      <WixEulaFile>$(USERPROFILE)\.wix\wix$(WixToolsetMajorVersion)-osmf-eula.txt</WixEulaFile>
-    </PropertyGroup>
-
-    <Error
-      Text="You must accept the Open Source Maintenance Fee (OSMF) EULA to use WiX Toolset v$(WixToolsetMajorVersion). For instructions, see https://wixtoolset.org/osmf/"
-      Code="WIX7015"
-      File="$(MSBuildProjectFile)"
-      HelpLink="https://wixtoolset.org/osmf"
-      Condition=" !Exists('$(WixEulaFile)') " />
-  </Target>
-
   <!--
     ***********************************************************************************************
     ***********************************************************************************************
@@ -266,7 +249,6 @@
     -->
   <PropertyGroup>
     <PrepareForBuildDependsOn>
-      CheckLicenseAcceptance;
       ResolveInstallerPlatform;
       $(PrepareForBuildDependsOn)
     </PrepareForBuildDependsOn>
