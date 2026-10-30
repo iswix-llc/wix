@@ -1,4 +1,4 @@
-3name: Publish IsWiX packages
+name: Publish IsWiX packages
 
 # Mirrors IsWiX.WindowsInstaller's publish workflow: run by hand, pick a version bump, build and test,
 # sign with Azure Artifact Signing (ISWIX-LLC / IsWiX), push to nuget.org with trusted publishing,
