@@ -1,4 +1,4 @@
-name: Publish IsWiX packages
+3name: Publish IsWiX packages
 
 # Mirrors IsWiX.WindowsInstaller's publish workflow: run by hand, pick a version bump, build and test,
 # sign with Azure Artifact Signing (ISWIX-LLC / IsWiX), push to nuget.org with trusted publishing,
@@ -152,6 +152,12 @@ jobs:
           Write-Host "Branch $env:BRANCH; latest release in its history: $latestOnBranch; publishing $v"
           if (-not $pushVersionTag) { Write-Host "$tag already exists on origin (upstream WiX); recording this release as $recordTag only." }
 
+      - name: Get a short-lived NuGet key (trusted publishing)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
       - name: Sign in to Azure (federated identity)
         uses: azure/login@v3
         with:
@@ -192,12 +198,6 @@ jobs:
           if ($bad) { $bad | ForEach-Object { Write-Host $_ }; throw 'Some binaries are not validly signed.' }
           $signer = (Get-AuthenticodeSignature $ours[0].FullName).SignerCertificate.Subject
           Write-Host "$($ours.Count) binaries validly signed by: $signer"
-
-      - name: Get a short-lived NuGet key (trusted publishing)
-        uses: NuGet/login@v1
-        id: login
-        with:
-          user: ${{ secrets.NUGET_USER }}
 
       - name: Publish to nuget.org
         shell: pwsh
